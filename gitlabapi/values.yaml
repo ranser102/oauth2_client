@@ -1,0 +1,75 @@
+
+global:
+  name: gitlabapi 
+  namespace: <your namespace> # The namespace where this chart will be installed.
+  host: <your custom url>
+
+container:
+  image: <your container image url>
+  tag: latest
+  imagePullPolicy: Always 
+  containerPort: 5001
+
+applicationProbes:
+  readiness:
+    readinessPath: /hello
+    readinessResponse: "Hello"
+    port: 5001
+  liveness:
+    path: /hello
+    port: 5001
+
+resources:
+  memoryLimit: 512Mi
+  memoryRequest: 256Mi
+  cpuLimit: 200m
+  cpuRequest: 100m
+
+autoscaling:
+  minReplicas: 1
+  maxReplicas: 4
+  targetCPUUtilizationPercentage: 75
+
+ingress:
+  subdomain: <your subdoamin>
+  domain: <your domain>
+  path: /
+  backend:
+    serviceName: gitlabapi 
+    servicePort: 5001-tcp
+
+  tls: {}
+
+certificate: {}
+
+service:
+  name: gitlabapi
+  app: gitlabapi
+  port:
+    name: 5001-tcp
+    port: 80
+    protocol: TCP
+    targetPort: 5001
+
+secrets:
+  gitlabToken: <Add gitlab admin token here>
+  jwtSecret: <Add secret here>
+
+env:          
+  - name: SECURED_HOSTING
+    value: 'True'
+  - name: OAUTHLIB_INSECURE_TRANSPORT
+    value: 1
+  - name: CLIENT_ID
+    value: <your oauth2 client id>
+  - name: CLIENT_SECRET
+    value: <your oauth2 client secret>
+  - name: AUTHORIZATION_BASE_URL
+    value: <your authorization server url>
+  - name: TOKEN_URL
+    value: <your authorization server access token url>    
+  - name: CALLBACK_URI
+    value: callback
+  - name: API_URL
+    value: https://example.gitlab.com/api/v4/
+        

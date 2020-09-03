@@ -1,0 +1,67 @@
+kind: Deployment
+apiVersion: apps/v1
+metadata:
+  labels:
+    application: {{ .Values.applicationName | default .Chart.Name }}
+  name: {{ .Values.applicationName | default .Chart.Name }}
+spec:
+  selector:
+    matchLabels:
+      app: {{ .Values.applicationName | default .Chart.Name }}
+  revisionHistoryLimit: 10
+  template:
+    metadata:
+      labels:
+        app: {{ .Values.applicationName | default .Chart.Name }}
+    spec:
+      containers:
+      - env:
+        {{- range .Values.env }}
+          - name: {{ .name | quote }}
+            value: {{ .value | quote }}
+        {{- end }}          
+          - name: GITLAB_TOKEN
+            valueFrom:
+              secretKeyRef:
+                name: gitlab-token
+                key: GITLAB_TOKEN
+          - name: JWT_SECRET
+            valueFrom:
+                secretKeyRef:
+                  name: gitlab-token
+                  key: JWT_SECRET 
+        image: {{ .Values.container.image }}:{{ .Values.container.tag | default .Chart.Version }}
+        imagePullPolicy: {{ .Values.container.imagePullPolicy }}
+        name: {{ .Values.applicationName | default .Chart.Name }}
+        resources:
+          limits:
+            memory: {{ .Values.resources.memoryLimit }}
+            cpu: {{ .Values.resources.cpuLimit }}
+          requests:
+            memory: {{ .Values.resources.memoryRequest }}
+            cpu: {{ .Values.resources.cpuRequest }}
+        ports:
+        - containerPort: {{ .Values.container.containerPort }}
+          protocol: TCP
+        readinessProbe:
+          exec:
+            command:
+              - /bin/sh
+              - -c
+              - curl -s 'http://localhost:{{ .Values.applicationProbes.readiness.port }}{{ .Values.applicationProbes.readiness.readinessPath }}' | grep -iq '{{ .Values.applicationProbes.readiness.readinessResponse }}'
+        livenessProbe:
+          failureThreshold: 3
+          httpGet:
+            path: /
+            port: 5001
+            scheme: HTTP
+          initialDelaySeconds: 180
+          periodSeconds: 10
+          successThreshold: 1
+          timeoutSeconds: 1
+        terminationMessagePath: /dev/termination-log #Container termination message
+        terminationMessagePolicy: File # Type of termination message
+      dnsPolicy: ClusterFirst
+      restartPolicy: Always
+      terminationGracePeriodSeconds: 30
+

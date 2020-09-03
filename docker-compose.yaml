@@ -1,0 +1,11 @@
+version: '3'
+    
+services:
+  mypy:
+    build: .
+    image: <your container image url>:latest
+    environment:
+        - GITLAB_TOKEN=<add admin gitlab token here>
+        - JWT_SECRET=<add unique secret here>
+    ports:
+      - "8080:5001"

@@ -1,0 +1,6 @@
+flask
+pyjwt
+datetime
+requests
+archive
+requests_oauthlib
