@@ -57,8 +57,8 @@ Follow these instructions: https://docs.gitlab.com/ee/integration/oauth_provider
 #### Example for how to consume the archive api
 Note: The application need to be registered in gitlab instance such example.gitlab.com
 
-- Readiness check: https://<your k8s ingress url>/hello
-- Archive api: https://<your k8s ingress url>/gitlabrequest?request_type=archive&project=eransery/test_archive_project 
+- Readiness check: https://\<your k8s ingress url\>/hello
+- Archive api: https://\<your k8s ingress url\>/gitlabrequest?request_type=archive&project=eransery/test_archive_project 
 
 
         
